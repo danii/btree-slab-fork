@@ -1,3 +1,7 @@
+> THIS IS A FORK OF [btree-slab](https://github.com/timothee-haudebourg/btree-slab). ALL CREDIT AND LICENSING GOES TO THE OWNER OF THE ORIGINAL REPOSITORY.
+
+> The commit d845b7b66dfc790ddf7346cde6936bec56b0f652 within this fork is the entire history of the commit e92b987d87529773dd182cce0a4b8bd5123de2a9 in the upstream repository. (The commit does not exist in the upstream, but is the commit of version 0.2.1 of the crate.)
+
 # Slab-based B-Tree implementation
 
 <table><tr>
