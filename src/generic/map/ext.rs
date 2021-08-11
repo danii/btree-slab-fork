@@ -3,10 +3,7 @@ use std::{
 	borrow::Borrow
 };
 use smallvec::SmallVec;
-use cc_traits::{
-	Slab,
-	SlabMut
-};
+use cc_traits::*;
 use crate::{
 	generic::{
 		map::{
@@ -299,7 +296,7 @@ pub trait BTreeExtMut<K, V> {
 	fn release_node(&mut self, id: usize) -> Node<K, V>;
 }
 
-impl<K, V, C: Slab<Node<K, V>>> BTreeExt<K, V> for BTreeMap<K, V, C> {
+impl<K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize>> BTreeExt<K, V> for BTreeMap<K, V, C> {
 	#[inline]
 	fn root_id(&self) -> Option<usize> {
 		self.root
@@ -698,7 +695,7 @@ impl<K, V, C: Slab<Node<K, V>>> BTreeExt<K, V> for BTreeMap<K, V, C> {
 	}
 }
 
-impl<K, V, C: SlabMut<Node<K, V>>> BTreeExtMut<K, V> for BTreeMap<K, V, C> {
+impl<K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> BTreeExtMut<K, V> for BTreeMap<K, V, C> {
 	#[inline]
 	fn set_len(&mut self, new_len: usize) {
 		self.len = new_len

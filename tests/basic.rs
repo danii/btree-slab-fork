@@ -1,4 +1,3 @@
-#![feature(nll)]
 use rand::{
 	SeedableRng,
 	seq::SliceRandom,

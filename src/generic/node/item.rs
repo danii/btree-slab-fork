@@ -19,7 +19,7 @@ pub struct Item<K, V> {
 impl<K: Clone, V: Clone> Clone for Item<K, V> {
 	fn clone(&self) -> Self {
 		unsafe {
-			Self::new(self.key.assume_init_ref().clone(), self.value.assume_init_ref().clone())
+			Self::new((&*self.key.as_ptr()).clone(), (&*self.value.as_ptr()).clone())
 		}
 	}
 }
@@ -40,23 +40,23 @@ impl<K, V> Item<K, V> {
 
 	#[inline]
 	pub fn key(&self) -> &K {
-		unsafe { self.key.assume_init_ref() }
+		unsafe { &*self.key.as_ptr() }
 	}
 
 	/// Modifying a key in such a way that its order with regard to other keys changes is a logical error.
 	#[inline]
 	pub fn key_mut(&mut self) -> &mut K {
-		unsafe { self.key.assume_init_mut() }
+		unsafe { &mut *self.key.as_mut_ptr() }
 	}
 
 	#[inline]
 	pub fn value(&self) -> &V {
-		unsafe { self.value.assume_init_ref() }
+		unsafe { &*self.value.as_ptr() }
 	}
 
 	#[inline]
 	pub fn value_mut(&mut self) -> &mut V {
-		unsafe { self.value.assume_init_mut() }
+		unsafe { &mut *self.value.as_mut_ptr() }
 	}
 
 	/// Modifying a key in such a way that its order with regard to other keys changes is a logical error.
@@ -109,12 +109,12 @@ impl<K, V> Item<K, V> {
 
 	#[inline]
 	pub fn as_pair(&self) -> (&K, &V) {
-		unsafe { (self.key.assume_init_ref(), self.value.assume_init_ref()) }
+		unsafe { ((&*self.key.as_ptr()), (&*self.value.as_ptr())) }
 	}
 
 	#[inline]
 	pub fn as_pair_mut(&mut self) -> (&mut K, &mut V) {
-		unsafe { (self.key.assume_init_mut(), self.value.assume_init_mut()) }
+		unsafe { ((&mut *self.key.as_mut_ptr()), (&mut *self.value.as_mut_ptr())) }
 	}
 
 	#[inline]
@@ -147,8 +147,8 @@ impl<K, V> Item<K, V> {
 impl<K, V> Drop for Item<K, V> {
 	fn drop(&mut self) {
 		unsafe {
-			std::ptr::drop_in_place(self.key.assume_init_mut());
-			std::ptr::drop_in_place(self.value.assume_init_mut());
+			std::ptr::drop_in_place(self.key.as_mut_ptr());
+			std::ptr::drop_in_place(self.value.as_mut_ptr());
 		}
 	}
 }

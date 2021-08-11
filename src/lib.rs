@@ -1,6 +1,3 @@
-#![feature(is_sorted)]
-#![feature(trait_alias)]
-
 use slab::Slab;
 
 pub mod utils;

@@ -13,7 +13,8 @@ use crate::{
 			Children,
 			ChildrenWithSeparators,
 			Balance,
-			WouldUnderflow
+			WouldUnderflow,
+			is_sorted
 		}
 	},
 	utils::binary_search_min
@@ -461,7 +462,7 @@ impl<K, V> Internal<K, V> {
 			}
 		}
 
-		if !self.other_children.is_sorted() {
+		if !is_sorted(self.other_children.iter()) {
 			panic!("internal node items are not sorted")
 		}
 

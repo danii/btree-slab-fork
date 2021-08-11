@@ -1,8 +1,5 @@
 use std::fmt;
-use cc_traits::{
-	Slab,
-	SlabMut
-};
+use cc_traits::*;
 use crate::{
 	generic::{
 		map::{
@@ -28,7 +25,7 @@ pub enum Entry<'a, K, V, C = slab::Slab<Node<K, V>>> {
 
 use Entry::*;
 
-impl<'a, K, V, C: Slab<Node<K, V>>> Entry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize>> Entry<'a, K, V, C> {
 	/// Gets the address of the entry in the B-Tree.
 	#[inline]
 	pub fn address(&self) -> Address {
@@ -57,7 +54,7 @@ impl<'a, K, V, C: Slab<Node<K, V>>> Entry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K, V, C: SlabMut<Node<K, V>>> Entry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> Entry<'a, K, V, C> {
 	/// Ensures a value is in the entry by inserting the default if empty, and returns
 	/// a mutable reference to the value in the entry.
 	///
@@ -109,7 +106,6 @@ impl<'a, K, V, C: SlabMut<Node<K, V>>> Entry<'a, K, V, C> {
 	/// # Examples
 	///
 	/// ```
-	/// #![feature(or_insert_with_key)]
 	/// use btree_slab::BTreeMap;
 	///
 	/// let mut map: BTreeMap<&str, usize> = BTreeMap::new();
@@ -182,7 +178,7 @@ impl<'a, K, V, C: SlabMut<Node<K, V>>> Entry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K: fmt::Debug, V: fmt::Debug, C: Slab<Node<K, V>>> fmt::Debug for Entry<'a, K, V, C> {
+impl<'a, K: fmt::Debug, V: fmt::Debug, C: Collection<Item = Node<K, V>> + Len + Get<usize>> fmt::Debug for Entry<'a, K, V, C> {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
@@ -200,7 +196,7 @@ pub struct VacantEntry<'a, K, V, C = slab::Slab<Node<K, V>>> {
 	pub(crate) addr: Address
 }
 
-impl<'a, K, V, C: Slab<Node<K, V>>> VacantEntry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize>> VacantEntry<'a, K, V, C> {
 	/// Gets the address of the vacant entry in the B-Tree.
 	#[inline]
 	pub fn address(&self) -> Address {
@@ -240,7 +236,7 @@ impl<'a, K, V, C: Slab<Node<K, V>>> VacantEntry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K, V, C: SlabMut<Node<K, V>>> VacantEntry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> VacantEntry<'a, K, V, C> {
 	/// Sets the value of the entry with the `VacantEntry`'s key,
 	/// and returns a mutable reference to it.
 	///
@@ -263,7 +259,7 @@ impl<'a, K, V, C: SlabMut<Node<K, V>>> VacantEntry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K: fmt::Debug, V, C: Slab<Node<K, V>>> fmt::Debug for VacantEntry<'a, K, V, C> {
+impl<'a, K: fmt::Debug, V, C: Collection<Item = Node<K, V>> + Len + Get<usize>> fmt::Debug for VacantEntry<'a, K, V, C> {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		f.debug_tuple("VacantEntry").field(self.key()).finish()
@@ -277,7 +273,7 @@ pub struct OccupiedEntry<'a, K, V, C = slab::Slab<Node<K, V>>> {
 	pub(crate) addr: Address
 }
 
-impl<'a, K, V, C: Slab<Node<K, V>>> OccupiedEntry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize>> OccupiedEntry<'a, K, V, C> {
 	/// Gets the address of the occupied entry in the B-Tree.
 	#[inline]
 	pub fn address(&self) -> Address {
@@ -319,7 +315,7 @@ impl<'a, K, V, C: Slab<Node<K, V>>> OccupiedEntry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K, V, C: SlabMut<Node<K, V>>> OccupiedEntry<'a, K, V, C> {
+impl<'a, K, V, C: Collection<Item = Node<K, V>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> OccupiedEntry<'a, K, V, C> {
 	/// Gets a mutable reference to the value in the entry.
 	///
 	/// If you need a reference to the OccupiedEntry that may outlive
@@ -441,7 +437,7 @@ impl<'a, K, V, C: SlabMut<Node<K, V>>> OccupiedEntry<'a, K, V, C> {
 	}
 }
 
-impl<'a, K: fmt::Debug, V: fmt::Debug, C: Slab<Node<K, V>>> fmt::Debug for OccupiedEntry<'a, K, V, C> {
+impl<'a, K: fmt::Debug, V: fmt::Debug, C: Collection<Item = Node<K, V>> + Len + Get<usize>> fmt::Debug for OccupiedEntry<'a, K, V, C> {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		f.debug_struct("OccupiedEntry").field("key", self.key()).field("value", self.get()).finish()

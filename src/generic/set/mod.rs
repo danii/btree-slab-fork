@@ -14,10 +14,7 @@ use std::{
 	},
 	ops::RangeBounds
 };
-use cc_traits::{
-	Slab,
-	SlabMut
-};
+use cc_traits::*;
 use crate::{
 	generic::{
 		map,
@@ -96,7 +93,7 @@ impl<T, C> BTreeSet<T, C> {
 	}
 }
 
-impl<T, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> BTreeSet<T, C> {
 	/// Gets an iterator that visits the values in the `BTreeSet` in ascending order.
 	///
 	/// # Examples
@@ -130,7 +127,7 @@ impl<T, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	}
 }
 
-impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
+impl<T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> BTreeSet<T, C> {
 	/// Returns `true` if the set contains a value.
 	///
 	/// The value may be any borrowed form of the set's value type,
@@ -233,7 +230,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(union, [1, 2]);
 	/// ```
 	#[inline]
-	pub fn union<'a, D: Slab<Node<T, ()>>>(&'a self, other: &'a BTreeSet<T, D>) -> Union<'a, T, C, D> {
+	pub fn union<'a, D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&'a self, other: &'a BTreeSet<T, D>) -> Union<'a, T, C, D> {
 		Union {
 			it1: self.iter().peekable(),
 			it2: other.iter().peekable()
@@ -261,7 +258,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(intersection, [2]);
 	/// ```
 	#[inline]
-	pub fn intersection<'a, D: Slab<Node<T, ()>>>(&'a self, other: &'a BTreeSet<T, D>) -> Intersection<'a, T, C, D> {
+	pub fn intersection<'a, D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&'a self, other: &'a BTreeSet<T, D>) -> Intersection<'a, T, C, D> {
 		Intersection {
 			it1: self.iter(),
 			it2: other.iter().peekable()
@@ -289,7 +286,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(diff, [1]);
 	/// ```
 	#[inline]
-	pub fn difference<'a, D: Slab<Node<T, ()>>>(&'a self, other: &'a BTreeSet<T, D>) -> Difference<'a, T, C, D> {
+	pub fn difference<'a, D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&'a self, other: &'a BTreeSet<T, D>) -> Difference<'a, T, C, D> {
 		Difference {
 			it1: self.iter(),
 			it2: other.iter().peekable()
@@ -317,7 +314,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(sym_diff, [1, 3]);
 	/// ```
 	#[inline]
-	pub fn symmetric_difference<'a, D: Slab<Node<T, ()>>>(&'a self, other: &'a BTreeSet<T, D>) -> SymmetricDifference<'a, T, C, D> {
+	pub fn symmetric_difference<'a, D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&'a self, other: &'a BTreeSet<T, D>) -> SymmetricDifference<'a, T, C, D> {
 		SymmetricDifference {
 			it1: self.iter().peekable(),
 			it2: other.iter().peekable()
@@ -342,7 +339,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(a.is_disjoint(&b), false);
 	/// ```
 	#[inline]
-	pub fn is_disjoint<D: Slab<Node<T, ()>>>(&self, other: &BTreeSet<T, D>) -> bool {
+	pub fn is_disjoint<D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&self, other: &BTreeSet<T, D>) -> bool {
 		self.intersection(other).next().is_none()
 	}
 	
@@ -364,7 +361,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(set.is_subset(&sup), false);
 	/// ```
 	#[inline]
-	pub fn is_subset<D: Slab<Node<T, ()>>>(&self, other: &BTreeSet<T, D>) -> bool {
+	pub fn is_subset<D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&self, other: &BTreeSet<T, D>) -> bool {
 		self.difference(other).next().is_none()
 	}
 
@@ -389,7 +386,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	/// assert_eq!(set.is_superset(&sub), true);
 	/// ```
 	#[inline]
-	pub fn is_superset<D: Slab<Node<T, ()>>>(&self, other: &BTreeSet<T, D>) -> bool {
+	pub fn is_superset<D: Collection<Item = Node<T, ()>> + Len + Get<usize>>(&self, other: &BTreeSet<T, D>) -> bool {
 		other.is_subset(self)
 	}
 	
@@ -434,7 +431,7 @@ impl<T: Ord, C: Slab<Node<T, ()>>> BTreeSet<T, C> {
 	}
 }
 
-impl<T: Ord, C: SlabMut<Node<T, ()>>> BTreeSet<T, C> {
+impl<T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> BTreeSet<T, C> {
 	/// Clears the set, removing all values.
 	///
 	/// # Examples
@@ -688,7 +685,7 @@ impl<T: Clone, C: Clone> Clone for BTreeSet<T, C> {
 	}
 }
 
-impl<T: Ord, C: SlabMut<Node<T, ()>> + Default> FromIterator<T> for BTreeSet<T, C> {
+impl<T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize> + Default> FromIterator<T> for BTreeSet<T, C> {
 	#[inline]
 	fn from_iter<I>(iter: I) -> Self where I: IntoIterator<Item=T> {
 		let mut set = BTreeSet::new();
@@ -697,7 +694,7 @@ impl<T: Ord, C: SlabMut<Node<T, ()>> + Default> FromIterator<T> for BTreeSet<T, 
 	}
 }
 
-impl<T, C: SlabMut<Node<T, ()>>> IntoIterator for BTreeSet<T, C> {
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> IntoIterator for BTreeSet<T, C> {
 	type Item = T;
 	type IntoIter = IntoIter<T, C>;
 	
@@ -709,7 +706,7 @@ impl<T, C: SlabMut<Node<T, ()>>> IntoIterator for BTreeSet<T, C> {
 	}
 }
 
-impl<'a, T, C: SlabMut<Node<T, ()>>> IntoIterator for &'a BTreeSet<T, C> {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> IntoIterator for &'a BTreeSet<T, C> {
 	type Item = &'a T;
 	type IntoIter = Iter<'a, T, C>;
 	
@@ -719,7 +716,7 @@ impl<'a, T, C: SlabMut<Node<T, ()>>> IntoIterator for &'a BTreeSet<T, C> {
 	}
 }
 
-impl<T: Ord, C: SlabMut<Node<T, ()>>> Extend<T> for BTreeSet<T, C> {
+impl<T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> Extend<T> for BTreeSet<T, C> {
 	#[inline]
 	fn extend<I>(&mut self, iter: I) where I: IntoIterator<Item=T> {
 		for t in iter {
@@ -728,37 +725,37 @@ impl<T: Ord, C: SlabMut<Node<T, ()>>> Extend<T> for BTreeSet<T, C> {
 	}
 }
 
-impl<'a, T: Ord + Copy, C: SlabMut<Node<T, ()>>> Extend<&'a T> for BTreeSet<T, C> {
+impl<'a, T: Ord + Copy, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> Extend<&'a T> for BTreeSet<T, C> {
 	#[inline]
 	fn extend<I>(&mut self, iter: I) where I: IntoIterator<Item=&'a T> {
 		self.extend(iter.into_iter().map(|&t| t))
 	}
 }
 
-impl<T, L: PartialEq<T>, C: Slab<Node<T, ()>>, D: Slab<Node<L, ()>>> PartialEq<BTreeSet<L, D>> for BTreeSet<T, C> {
+impl<T, L: PartialEq<T>, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<L, ()>> + Len + Get<usize>> PartialEq<BTreeSet<L, D>> for BTreeSet<T, C> {
 	#[inline]
 	fn eq(&self, other: &BTreeSet<L, D>) -> bool {
 		self.map.eq(&other.map)
 	}
 }
 
-impl<T: Eq, C: Slab<Node<T, ()>>> Eq for BTreeSet<T, C> {}
+impl<T: Eq, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> Eq for BTreeSet<T, C> {}
 
-impl<T, L: PartialOrd<T>, C: Slab<Node<T, ()>>, D: Slab<Node<L, ()>>> PartialOrd<BTreeSet<L, D>> for BTreeSet<T, C> {
+impl<T, L: PartialOrd<T>, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<L, ()>> + Len + Get<usize>> PartialOrd<BTreeSet<L, D>> for BTreeSet<T, C> {
 	#[inline]
 	fn partial_cmp(&self, other: &BTreeSet<L, D>) -> Option<Ordering> {
 		self.map.partial_cmp(&other.map)
 	}
 }
 
-impl<T: Ord, C: Slab<Node<T, ()>>> Ord for BTreeSet<T, C> {
+impl<T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> Ord for BTreeSet<T, C> {
 	#[inline]
 	fn cmp(&self, other: &BTreeSet<T, C>) -> Ordering {
 		self.map.cmp(&other.map)
 	}
 }
 
-impl<T: Hash, C: Slab<Node<T, ()>>> Hash for BTreeSet<T, C> {
+impl<T: Hash, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> Hash for BTreeSet<T, C> {
 	#[inline]
 	fn hash<H: Hasher>(&self, h: &mut H) {
 		self.map.hash(h)
@@ -769,7 +766,7 @@ pub struct Iter<'a, T, C> {
 	inner: map::Keys<'a, T, (), C>
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> Iterator for Iter<'a, T, C> {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for Iter<'a, T, C> {
 	type Item = &'a T;
 
 	#[inline]
@@ -783,21 +780,21 @@ impl<'a, T, C: Slab<Node<T, ()>>> Iterator for Iter<'a, T, C> {
 	}
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> DoubleEndedIterator for Iter<'a, T, C> {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> DoubleEndedIterator for Iter<'a, T, C> {
 	#[inline]
 	fn next_back(&mut self) -> Option<&'a T> {
 		self.inner.next_back()
 	}
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> FusedIterator for Iter<'a, T, C> {}
-impl<'a, T, C: Slab<Node<T, ()>>> ExactSizeIterator for Iter<'a, T, C> {}
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for Iter<'a, T, C> {}
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> ExactSizeIterator for Iter<'a, T, C> {}
 
 pub struct IntoIter<T, C> {
 	inner: map::IntoKeys<T, (), C>
 }
 
-impl<T, C: SlabMut<Node<T, ()>>> Iterator for IntoIter<T, C> {
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> Iterator for IntoIter<T, C> {
 	type Item = T;
 
 	#[inline]
@@ -811,22 +808,22 @@ impl<T, C: SlabMut<Node<T, ()>>> Iterator for IntoIter<T, C> {
 	}
 }
 
-impl<T, C: SlabMut<Node<T, ()>>> DoubleEndedIterator for IntoIter<T, C> {
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> DoubleEndedIterator for IntoIter<T, C> {
 	#[inline]
 	fn next_back(&mut self) -> Option<T> {
 		self.inner.next_back()
 	}
 }
 
-impl<T, C: SlabMut<Node<T, ()>>> FusedIterator for IntoIter<T, C> {}
-impl<T, C: SlabMut<Node<T, ()>>> ExactSizeIterator for IntoIter<T, C> {}
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> FusedIterator for IntoIter<T, C> {}
+impl<T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>> ExactSizeIterator for IntoIter<T, C> {}
 
-pub struct Union<'a, T, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> {
+pub struct Union<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> {
 	it1: Peekable<Iter<'a, T, C>>,
 	it2: Peekable<Iter<'a, T, D>>
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Union<'a, T, C, D> {
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for Union<'a, T, C, D> {
 	type Item = &'a T;
 
 	#[inline]
@@ -857,14 +854,14 @@ impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Union<
 	}
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> FusedIterator for Union<'a, T, C, D> {}
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for Union<'a, T, C, D> {}
 
-pub struct Intersection<'a, T, C, D: Slab<Node<T, ()>>> {
+pub struct Intersection<'a, T, C, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> {
 	it1: Iter<'a, T, C>,
 	it2: Peekable<Iter<'a, T, D>>
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Intersection<'a, T, C, D> {
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for Intersection<'a, T, C, D> {
 	type Item = &'a T;
 
 	#[inline]
@@ -903,14 +900,14 @@ impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Inters
 	}
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> FusedIterator for Intersection<'a, T, C, D> {}
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for Intersection<'a, T, C, D> {}
 
-pub struct Difference<'a, T, C, D: Slab<Node<T, ()>>> {
+pub struct Difference<'a, T, C, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> {
 	it1: Iter<'a, T, C>,
 	it2: Peekable<Iter<'a, T, D>>
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Difference<'a, T, C, D> {
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for Difference<'a, T, C, D> {
 	type Item = &'a T;
 
 	#[inline]
@@ -949,14 +946,14 @@ impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Differ
 	}
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> FusedIterator for Difference<'a, T, C, D> {}
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for Difference<'a, T, C, D> {}
 
-pub struct SymmetricDifference<'a, T, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> {
+pub struct SymmetricDifference<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> {
 	it1: Peekable<Iter<'a, T, C>>,
 	it2: Peekable<Iter<'a, T, D>>
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for SymmetricDifference<'a, T, C, D> {
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for SymmetricDifference<'a, T, C, D> {
 	type Item = &'a T;
 
 	#[inline]
@@ -989,15 +986,15 @@ impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> Iterator for Symmet
 	}
 }
 
-impl<'a, T: Ord, C: Slab<Node<T, ()>>, D: Slab<Node<T, ()>>> FusedIterator for SymmetricDifference<'a, T, C, D> {}
+impl<'a, T: Ord, C: Collection<Item = Node<T, ()>> + Len + Get<usize>, D: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for SymmetricDifference<'a, T, C, D> {}
 
-pub struct DrainFilter<'a, T, C: SlabMut<Node<T, ()>>, F> where F: FnMut(&T) -> bool {
+pub struct DrainFilter<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>, F> where F: FnMut(&T) -> bool {
 	pred: F,
 
 	inner: map::DrainFilterInner<'a, T, (), C>
 }
 
-impl<'a, T: 'a, C: SlabMut<Node<T, ()>>, F> DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
+impl<'a, T: 'a, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>, F> DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
 	#[inline]
 	pub fn new(set: &'a mut BTreeSet<T, C>, pred: F) -> Self {
 		DrainFilter {
@@ -1007,9 +1004,9 @@ impl<'a, T: 'a, C: SlabMut<Node<T, ()>>, F> DrainFilter<'a, T, C, F> where F: Fn
 	}
 }
 
-impl<'a, T, C: SlabMut<Node<T, ()>>, F> FusedIterator for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool { }
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>, F> FusedIterator for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool { }
 
-impl<'a, T, C: SlabMut<Node<T, ()>>, F> Iterator for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>, F> Iterator for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
 	type Item = T;
 
 	#[inline]
@@ -1024,7 +1021,7 @@ impl<'a, T, C: SlabMut<Node<T, ()>>, F> Iterator for DrainFilter<'a, T, C, F> wh
 	}
 }
 
-impl<'a, T, C: SlabMut<Node<T, ()>>, F> Drop for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize> + GetMut<usize> + Insert<Output = usize> + Remove<usize>, F> Drop for DrainFilter<'a, T, C, F> where F: FnMut(&T) -> bool {
 	fn drop(&mut self) {
 		loop {
 			if self.next().is_none() {
@@ -1038,7 +1035,7 @@ pub struct Range<'a, T, C> {
 	inner: map::Range<'a, T, (), C>
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> Iterator for Range<'a, T, C> {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> Iterator for Range<'a, T, C> {
 	type Item = &'a T;
 
 	#[inline]
@@ -1052,11 +1049,11 @@ impl<'a, T, C: Slab<Node<T, ()>>> Iterator for Range<'a, T, C> {
 	}
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> DoubleEndedIterator for Range<'a, T, C> {
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> DoubleEndedIterator for Range<'a, T, C> {
 	#[inline]
 	fn next_back(&mut self) -> Option<&'a T> {
 		self.inner.next_back().map(|(k, ())| k)
 	}
 }
 
-impl<'a, T, C: Slab<Node<T, ()>>> FusedIterator for Range<'a, T, C> {}
+impl<'a, T, C: Collection<Item = Node<T, ()>> + Len + Get<usize>> FusedIterator for Range<'a, T, C> {}

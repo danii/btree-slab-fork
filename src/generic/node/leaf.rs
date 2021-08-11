@@ -9,7 +9,8 @@ use crate::{
 			Item,
 			Offset,
 			Balance,
-			WouldUnderflow
+			WouldUnderflow,
+			is_sorted
 		}
 	},
 	utils::binary_search_min
@@ -274,7 +275,7 @@ impl<K, V> Leaf<K, V> {
 			}
 		}
 
-		if !self.items.is_sorted() {
+		if !is_sorted(self.items.iter()) {
 			panic!("leaf items are not sorted")
 		}
 

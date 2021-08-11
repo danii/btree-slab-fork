@@ -14,6 +14,38 @@ pub use addr::Address;
 pub use leaf::Leaf as LeafNode;
 pub use internal::Internal as InternalNode;
 
+fn is_sorted<I>(mut iter: I) -> bool
+		where I: Iterator, I::Item: PartialOrd<I::Item> {
+	let mut last = match iter.next() {
+		Some(last) => last,
+		None => return true
+	};
+
+	iter.all(|item| {
+		if let Some(Ordering::Greater) | None = last.partial_cmp(&item) {
+			false
+		} else {
+			last = item;
+			true
+		}
+	})
+}
+
+#[test]
+fn is_sorted_sorted() {
+	let mut vec = vec![457890, 4, -53834, 278, 13, -12, i32::MAX];
+
+	vec.sort();
+	assert!(is_sorted(vec.iter()));
+}
+
+#[test]
+fn is_sorted_unsorted() {
+	let vec = vec![457890, 4, -53834, 278, 13, -12, i32::MAX];
+
+	assert!(!is_sorted(vec.iter()));
+}
+
 /// Type identifier by a key.
 /// 
 /// This is implemented by [`Item`] and [`internal::Branch`].
